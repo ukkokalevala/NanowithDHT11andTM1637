@@ -1,0 +1,49 @@
+#include <Adafruit_Sensor.h>
+#include <DHT.h>
+#include <DHT_U.h>
+#include <TM1637Display.h>
+
+// Define DHT11 pin
+#define DHTPIN 2
+
+// Define TM1637 display pins
+#define CLK 3
+#define DIO 4
+
+// Initialize DHT11
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
+
+// Initialize TM1637 display
+TM1637Display display(CLK, DIO);
+
+void setup() {
+  // Start the serial communication
+  Serial.begin(9600);
+
+  // Initialize DHT11
+  dht.begin();
+
+  // Initialize the TM1637 display
+  display.setBrightness(0x0f);
+}
+
+void loop() {
+  // Read humidity
+  float h = dht.readHumidity();
+  // Read temperature in Celsius
+  float t = dht.readTemperature();
+
+  // Check if any reads failed and exit early (to try again).
+  if (isnan(h) || isnan(t)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
+
+  // Display temperature in Celsius on the TM1637 display
+  int displayTemp = (int)t * 100; // Shift decimal for correct display
+  display.showNumberDecEx(displayTemp, 0x80, true);
+
+  // Wait a few seconds between measurements
+  delay(2000);
+}
